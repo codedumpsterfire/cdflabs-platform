@@ -1,0 +1,30 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+
+# Environment secrets - NEVER COMMIT THESE
+.env
+*.env
+local-secrets.txt
+application-local.properties
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+__pycache__/
+
+# AWS
+*.pem
+.aws/
+
+# OS
+.DS_Store
+Thumbs.db
