@@ -28,3 +28,10 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Angular/Node
+node_modules/
+dist/
+.angular/
+.env
+*.env
