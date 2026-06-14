@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { angularComponentsPlugin } from './vite-plugin-angular';
 
 export default defineConfig({
+  plugins: [angularComponentsPlugin()],
   root: './',
   publicDir: 'public',
   build: {

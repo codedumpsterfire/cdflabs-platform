@@ -15,7 +15,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="viewer-container">
+    <div class="viewer-container" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
       <canvas #canvas class="canvas"></canvas>
       <div class="controls">
         <p class="model-name">{{ modelName }}</p>
@@ -24,14 +24,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
   `,
   styles: [`
     .viewer-container {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
       position: relative;
-      background: linear-gradient(
-        135deg,
-        rgba(102, 126, 234, 0.1) 0%,
-        rgba(118, 75, 162, 0.1) 100%
-      );
+      background: transparent;
       border-radius: 8px;
       overflow: hidden;
     }
@@ -42,28 +38,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
       height: 100%;
     }
 
-    .controls {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-
-    .model-name {
-      margin: 0;
-      font-weight: 500;
-    }
   `],
 })
 export class Viewer3DComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   @Input() modelPath: string = '';
-  @Input() modelName: string = 'Model';
+  @Input() modelName: string = '';
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -71,6 +52,8 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
   private model!: THREE.Group;
   private animationFrameId: number | null = null;
   private isAnimating = true;
+  private isSpinning = true;
+  private rotationSpeed = 0.005;
   private gltfLoader = new GLTFLoader();
   private modelCache = new Map<string, THREE.Group>();
 
@@ -83,12 +66,12 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
 
   private initThreeScene(): void {
     const canvas = this.canvasRef.nativeElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const width = 1000;
+    const height = 1000;
 
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x1a1a2e);
+    this.scene.background = null;
     this.scene.fog = new THREE.Fog(0x1a1a2e, 1000, 10000);
 
     // Camera
@@ -118,12 +101,12 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
 
   private setupLighting(): void {
     // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     this.scene.add(ambientLight);
 
     // Directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 10, 7);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    directionalLight.position.set(0, 0, 0);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
@@ -134,24 +117,13 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
     this.scene.add(directionalLight);
 
     // Point light for accent
-    const pointLight = new THREE.PointLight(0x667eea, 0.5);
+    const pointLight = new THREE.PointLight(0xffffff, 0.9);
     pointLight.position.set(-5, 3, 5);
     this.scene.add(pointLight);
   }
 
   private setupMouseControls(): void {
-    let mouseX = 0;
-    let mouseY = 0;
-
-    window.addEventListener('mousemove', e => {
-      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-      mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      if (this.model) {
-        this.model.rotation.y = mouseX * 1;
-        this.model.rotation.x = mouseY * 0.5;
-      }
-    });
+    
   }
 
   private loadModel(): void {
@@ -191,7 +163,7 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
 
     // Scale to fit view
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 4 / maxDim;
+    const scale = 2 / maxDim;
     this.model.scale.multiplyScalar(scale);
 
     // Enable shadows on model meshes
@@ -204,9 +176,13 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
   }
 
   private animate = (): void => {
-    if (!this.isAnimating) return;
-
     this.animationFrameId = requestAnimationFrame(this.animate);
+    
+    // Rotate model when spinning
+    if (this.isSpinning && this.model) {
+      this.model.rotation.y += this.rotationSpeed;
+    }
+    
     this.renderer.render(this.scene, this.camera);
   };
 
@@ -227,5 +203,13 @@ export class Viewer3DComponent implements AfterViewInit, OnDestroy {
     }
     window.removeEventListener('resize', () => this.onWindowResize());
     this.renderer?.dispose();
+  }
+
+  onMouseEnter(): void {
+    this.isSpinning = false;
+  }
+
+  onMouseLeave(): void {
+    this.isSpinning = true;
   }
 }

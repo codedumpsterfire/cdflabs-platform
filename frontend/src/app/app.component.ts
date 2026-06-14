@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { NavbarComponent } from './components/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NavbarComponent],
   template: `
+    <app-navbar></app-navbar>
     <main>
       <header>
         <h1>{{ title }}</h1>
@@ -71,5 +73,5 @@ import { RouterModule } from '@angular/router';
   `],
 })
 export class AppComponent {
-  title = 'CDFLabs 3D Platform';
+  title = 'CDF X LABS';
 }

@@ -1,3 +1,34 @@
+    <div class="home-container">
+      <div class="header">
+        <h1>3D Model Viewer</h1>
+        <p>Upload your glTF/GLB model or use a model from AWS S3</p>
+      </div>
+
+      <div class="viewer-wrapper">
+        <app-3d-viewer
+          modelPath="/assets/models/scene.gltf"
+          modelName="Dumpster Model"
+        ></app-3d-viewer>
+      </div>
+
+      <div class="instructions">
+        <h3>📁 Model Setup Instructions:</h3>
+        <ul>
+          <li>Place .glb or .gltf files in <code>src/assets/models/</code></li>
+          <li>Models are automatically lazy-loaded when needed</li>
+          <li>For production, store models in AWS S3 and reference the URL</li>
+          <li>Move your mouse over the model to rotate it</li>
+        </ul>
+
+        <h3>☁️ AWS S3 Setup:</h3>
+        <ul>
+          <li>Create an S3 bucket for your 3D assets</li>
+          <li>Enable CORS on the bucket</li>
+          <li>Use presigned URLs or public access for models</li>
+          <li>Update the <code>modelPath</code> prop to S3 URL</li>
+        </ul>
+      </div>
+    </div>
 <div class="home-container">
   <div class="header">
     <h1>3D Model Viewer</h1>
