@@ -17,7 +17,7 @@ import { DataLoaderService, Listing } from '../../../services/data-loader.servic
       <div class="listings-wrapper" *ngIf="showListings">
         <!-- Left side listings -->
         <div class="listings-column left-column">
-          <div class="listing-card" *ngFor="let listing of leftListings">
+          <div class="listing-card" *ngFor="let listing of listings">
             <div class="card-header">
               <h3 class="listing-name">{{ listing.name }}</h3>
               <span class="badge" [ngClass]="'status-' + listing.status.toLowerCase()">{{ listing.status }}</span>
@@ -322,7 +322,7 @@ export class ListingComponent {
   rightListings: Listing[] = [];
 
   constructor() {
-    this.loadFakeData();
+    this.loadData();
   }
 
   private loadFakeData(): void {
@@ -409,6 +409,25 @@ export class ListingComponent {
 
     this.distributeListings();
   }
+
+  private async loadData(): Promise<void> {
+  try {
+    const response = await fetch('http://localhost:8080/api/listings');
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Fetching listings data...', data);
+    if (data !== null) {
+      this.listings = data;
+      this.distributeListings();
+    } else {
+      console.warn('Received null data for listings or there was an uncaught error');
+    }
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+  }
+}
 
   private distributeListings(): void {
     this.leftListings = [];
