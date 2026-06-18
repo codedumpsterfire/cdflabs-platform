@@ -1,21 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Viewer3DComponent } from '../../components/3d-viewer/3d-viewer.component';
-
-interface Listing {
-  id: string;
-  user_id: string;
-  listing_type: string;
-  name: string;
-  summary: string;
-  description: string;
-  ai_usage: string;
-  state: string;
-  personal_site_url: string;
-  instagram_url: string;
-  status: string;
-}
+import { DataLoaderService, Listing } from '../../../services/data-loader.service';
 
 @Component({
   selector: 'app-listing',
