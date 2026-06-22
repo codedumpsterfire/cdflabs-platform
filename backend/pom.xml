@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -20,6 +20,10 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<!-- Pinning JJWT version here so the three jjwt-* artifacts below
+		     all stay in sync. Bump this single property to upgrade them
+		     together - never mix versions across api/impl/jackson. -->
+		<jjwt.version>0.12.6</jjwt.version>
 	</properties>
 
 	<dependencies>
@@ -31,7 +35,36 @@
 		</dependency>
 
 		<!-- ==================== SECURITY ==================== -->
+		<!-- Adds Spring Security's filter chain and all the classes
+		     SecurityConfig.java imports. Without this, SecurityConfig
+		     won't compile and the app won't start. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 
+		<!-- JJWT for validating Supabase JWTs in our filter chain (Day 3).
+		     Split into three artifacts by design: 'api' has the interfaces,
+		     'impl' has the actual implementation (runtime only), 'jackson'
+		     handles claim deserialization. This separation lets enterprise
+		     apps swap implementations without touching the API. -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 
 		<!-- ==================== DATA / JPA ==================== -->
 		<dependency>
@@ -46,19 +79,16 @@
 		</dependency>
 
 		<!-- ==================== FLYWAY ==================== -->
-		<!-- Core Flyway engine -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
-		<!-- Postgres-specific Flyway dialect -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
 		<!-- ==================== DATABASE ==================== -->
-		<!-- PostgreSQL JDBC driver - runtime only, not needed at compile time -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -66,14 +96,12 @@
 		</dependency>
 
 		<!-- ==================== UTILITIES ==================== -->
-		<!-- Lombok - generates boilerplate (getters, setters, constructors) at compile time -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- DevTools - hot reload on file save during local development -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -82,23 +110,46 @@
 		</dependency>
 
 		<!-- ==================== TEST ==================== -->
-		<!-- One dependency covers JUnit 5, Mockito, AssertJ, and Spring Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Spring Security testing helpers - lets unit tests stub in
+		     fake authenticated users via @WithMockUser etc. -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- =================== DOCUMENTATION ===================== -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<!-- ===================== MONITORING and LOGGING =========== -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
 		<plugins>
-			<!-- Spring Boot Maven plugin - packages the app as a runnable JAR -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<!-- Exclude Lombok from the final JAR - only needed at compile time -->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
